@@ -10,15 +10,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
 @Entity
-@Table(name = "tb_posts")
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "title", nullable = true)
+    private Long userId;
     private String title;
-    @Column(name = "body", nullable = true, columnDefinition = "TEXT")
+    @Column(length = 1000)
     private String body;
 }
