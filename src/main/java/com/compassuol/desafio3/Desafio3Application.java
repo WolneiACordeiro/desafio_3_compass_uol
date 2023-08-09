@@ -2,6 +2,7 @@ package com.compassuol.desafio3;
 
 import jakarta.jms.ConnectionFactory;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
@@ -18,6 +19,10 @@ import org.springframework.jms.support.converter.MessageType;
 @SpringBootApplication
 @EnableJms
 public class Desafio3Application {
+	@Bean
+	public ModelMapper modelMapper(){
+		return new ModelMapper();
+	}
 
 	//public static void main(String[] args) {
 		//SpringApplication.run(Desafio3Application.class, args);
