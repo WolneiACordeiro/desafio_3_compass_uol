@@ -19,7 +19,7 @@ public class ProcessingHistoryController {
         this.processingHistoryService = processingHistoryService;
     }
 
-    @PostMapping("/{postId}/{status}")
+    /*@PostMapping("/{postId}/{status}")
     public ResponseEntity<String> createProcessingHistory(
             @PathVariable Long postId,
             @PathVariable String status) {
@@ -38,6 +38,6 @@ public class ProcessingHistoryController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid status value");
         }
-    }
+    }*/
 
 }

@@ -47,14 +47,8 @@ public class Desafio3Application {
 	}
 
 	public static void main(String[] args) {
-		// Launch the application
 		ConfigurableApplicationContext context = SpringApplication.run(Desafio3Application.class, args);
-
 		JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
-
-		// Send a message with a POJO - the template reuse the message converter
-		System.out.println("COMEÇOU");
-		jmsTemplate.convertAndSend("filaA", "ESTOU AQUI");
 	}
 
 }

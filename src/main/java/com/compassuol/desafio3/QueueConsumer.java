@@ -17,7 +17,6 @@ public class QueueConsumer {
         System.out.println("Recebido da filaA: " + message);
         // Processamento na filaA
         message += " (processado na filaA)";
-
         // Encaminha a mensagem para a próxima fila (filaB)
         sendMessageToQueueB(message);
     }

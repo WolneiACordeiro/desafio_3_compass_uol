@@ -4,5 +4,6 @@ import com.compassuol.desafio3.entity.PostState;
 import com.compassuol.desafio3.payload.ProcessingHistoryDto;
 
 public interface ProcessingHistoryService {
-    ProcessingHistoryDto createProcess(Long postId, ProcessingHistoryDto processingHistoryDto);
+    //ProcessingHistoryDto createProcess(Long postId, ProcessingHistoryDto processingHistoryDto);
+    ProcessingHistoryDto createProcessQueue(Long postId, PostState status, ProcessingHistoryDto processingHistoryDto);
 }

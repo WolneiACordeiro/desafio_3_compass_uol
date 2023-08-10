@@ -27,7 +27,7 @@ public class ProcessingHistoryServiceImpl implements ProcessingHistoryService {
         this.mapper = mapper;
     }
 
-    @Override
+    /*@Override
     @Async
     public ProcessingHistoryDto createProcess(Long postId, ProcessingHistoryDto processingHistoryDto) {
         ProcessingHistory processingHistory = mapToEntity(processingHistoryDto);
@@ -36,6 +36,18 @@ public class ProcessingHistoryServiceImpl implements ProcessingHistoryService {
         processingHistory.setDate(LocalDateTime.now());
         ProcessingHistory newProcess = processingHistoryRepository.save(processingHistory);
         return mapToDTO(newProcess);
+    }*/
+
+    @Override
+    @Async
+    public ProcessingHistoryDto createProcessQueue(Long postId, PostState status, ProcessingHistoryDto processingHistoryDto) {
+            ProcessingHistory processingHistory = mapToEntity(processingHistoryDto);
+            //Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
+            //processingHistory.setPost(post);
+            processingHistory.setDate(LocalDateTime.now());
+            processingHistory.setStatus(String.valueOf(status));
+            ProcessingHistory newProcess = processingHistoryRepository.save(processingHistory);
+            return mapToDTO(newProcess);
     }
 
     //Entity to DTO
