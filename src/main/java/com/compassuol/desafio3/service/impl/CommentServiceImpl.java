@@ -38,10 +38,13 @@ public class CommentServiceImpl implements CommentService {
                 .collectList()
                 .flatMap(comments -> {
                     List<Comment> commentEntities = comments.stream()
-                            .map(this::mapToEntity)
+                            .map(commentDto -> mapToEntity(commentDto))
                             .collect(Collectors.toList());
-                    commentRepository.saveAll(commentEntities);
-                    return Mono.just(comments);
+                    commentEntities = commentRepository.saveAll(commentEntities);
+                    List<CommentDto> commentDtos = commentEntities.stream()
+                            .map(this::mapToDTO)
+                            .collect(Collectors.toList());
+                    return Mono.just(commentDtos);
                 });
     }
 
