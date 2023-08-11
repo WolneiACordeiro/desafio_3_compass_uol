@@ -7,9 +7,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class ProcessingHistoryDto {
-
     private Long id;
-    private Post post;
+    private Long postId;
     private LocalDateTime date;
     private String status;
 }

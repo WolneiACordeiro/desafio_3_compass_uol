@@ -42,8 +42,7 @@ public class ProcessingHistoryServiceImpl implements ProcessingHistoryService {
     @Async
     public ProcessingHistoryDto createProcessQueue(Long postId, PostState status, ProcessingHistoryDto processingHistoryDto) {
             ProcessingHistory processingHistory = mapToEntity(processingHistoryDto);
-            //Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-            //processingHistory.setPost(post);
+            processingHistory.setPostId(postId);
             processingHistory.setDate(LocalDateTime.now());
             processingHistory.setStatus(String.valueOf(status));
             ProcessingHistory newProcess = processingHistoryRepository.save(processingHistory);
