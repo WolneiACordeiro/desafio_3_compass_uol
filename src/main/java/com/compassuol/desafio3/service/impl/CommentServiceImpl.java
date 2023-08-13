@@ -7,6 +7,7 @@ import com.compassuol.desafio3.repository.CommentRepository;
 import com.compassuol.desafio3.repository.PostRepository;
 import com.compassuol.desafio3.service.CommentService;
 import org.modelmapper.ModelMapper;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,16 +18,20 @@ import java.util.stream.Collectors;
 @Service
 public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository;
-    private PostRepository postRepository;
-    private ModelMapper mapper;
 
     private final WebClient webClient;
+    private ModelMapper mapper;
 
-    public CommentServiceImpl(CommentRepository commentRepository, PostRepository postRepository, ModelMapper modelMapper, WebClient.Builder webClientBuilder) {
+    private final JmsTemplate jmsTemplate;
+
+    public CommentServiceImpl(CommentRepository commentRepository,
+                              ModelMapper modelMapper,
+                              WebClient.Builder webClientBuilder,
+                              JmsTemplate jmsTemplate) {
         this.commentRepository = commentRepository;
-        this.postRepository = postRepository;
         this.mapper = modelMapper;
         this.webClient = webClientBuilder.baseUrl("https://jsonplaceholder.typicode.com").build();
+        this.jmsTemplate = jmsTemplate;
     }
 
     @Override
@@ -44,8 +49,37 @@ public class CommentServiceImpl implements CommentService {
                     List<CommentDto> commentDtos = commentEntities.stream()
                             .map(this::mapToDTO)
                             .collect(Collectors.toList());
+                    jmsTemplate.convertAndSend("ENABLED", postId);
                     return Mono.just(commentDtos);
                 });
+    }
+
+    @Override
+    public Mono<Void> processBasedOnDataExistence(Long postId) {
+        return checkIfDataExists(postId)
+                .flatMap(dataExists -> {
+                    if (dataExists) {
+                        return handlePositiveCase(postId);
+                    } else {
+                        return handleNegativeCase(postId);
+                    }
+                });
+    }
+
+    public Mono<Boolean> checkIfDataExists(Long postId) {
+        return webClient.head()
+                .uri("/comments?postId={postId}", postId)
+                .exchangeToMono(response -> Mono.just(response.statusCode().is2xxSuccessful()));
+    }
+
+    public Mono<Void> handlePositiveCase(Long postId) {
+        jmsTemplate.convertAndSend("COMMENTS_OK", postId);
+        return Mono.empty();
+    }
+
+    public Mono<Void> handleNegativeCase(Long postId) {
+        jmsTemplate.convertAndSend("FAILED", postId);
+        return Mono.empty();
     }
 
     private CommentDto mapToDTO(Comment comment){

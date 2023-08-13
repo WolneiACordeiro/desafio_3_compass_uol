@@ -6,5 +6,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface CommentService {
+    Mono<Void> processBasedOnDataExistence(Long postId);
     Mono<List<CommentDto>> createComment(Long postId);
 }

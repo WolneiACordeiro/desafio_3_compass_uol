@@ -17,18 +17,15 @@ public class PostServiceImpl implements PostService {
     private final WebClient webClient;
     private ModelMapper mapper;
     private final JmsTemplate jmsTemplate;
-    private final ProcessingHistoryService processingHistoryService;
     public PostServiceImpl(PostRepository postRepository,
                            ModelMapper mapper,
                            WebClient.Builder webClientBuilder,
-                           JmsTemplate jmsTemplate,
-                           ProcessingHistoryService processingHistoryService
+                           JmsTemplate jmsTemplate
     ){
         this.postRepository = postRepository;
         this.mapper = mapper;
         this.webClient = webClientBuilder.baseUrl("https://jsonplaceholder.typicode.com").build();
         this.jmsTemplate = jmsTemplate;
-        this.processingHistoryService = processingHistoryService;
     }
 
    @Override
@@ -58,7 +55,7 @@ public class PostServiceImpl implements PostService {
                 jmsTemplate.convertAndSend("CREATED", postId);
                 return true;
             } catch (Exception e) {
-                jmsTemplate.convertAndSend("FAILED", postId);
+                //jmsTemplate.convertAndSend("FAILED", postId);
                 return false;
             }
         });
