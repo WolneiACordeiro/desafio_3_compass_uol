@@ -1,23 +1,23 @@
 package com.compassuol.desafio3.service.impl;
 
-import com.compassuol.desafio3.entity.Comment;
 import com.compassuol.desafio3.entity.Post;
-import com.compassuol.desafio3.entity.ProcessingHistory;
-import com.compassuol.desafio3.payload.CommentDto;
+import com.compassuol.desafio3.payload.CommentDisplayDto;
 import com.compassuol.desafio3.payload.PostDto;
+import com.compassuol.desafio3.payload.ProcessingHistoryDisplayDto;
 import com.compassuol.desafio3.repository.CommentRepository;
 import com.compassuol.desafio3.repository.PostRepository;
 import com.compassuol.desafio3.repository.ProcessingHistoryRepository;
 import com.compassuol.desafio3.service.CommentService;
 import com.compassuol.desafio3.service.PostService;
+import com.compassuol.desafio3.service.ProcessingHistoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +28,7 @@ public class PostServiceImpl implements PostService {
     private final WebClient webClient;
     private ModelMapper mapper;
     private CommentService commentService;
+    private ProcessingHistoryService processingHistoryService;
     private final JmsTemplate jmsTemplate;
     public PostServiceImpl(PostRepository postRepository,
                            CommentRepository commentRepository,
@@ -35,6 +36,7 @@ public class PostServiceImpl implements PostService {
                            ModelMapper mapper,
                            WebClient.Builder webClientBuilder,
                            CommentService commentService,
+                           ProcessingHistoryService processingHistoryService,
                            JmsTemplate jmsTemplate
     ){
         this.postRepository = postRepository;
@@ -43,27 +45,23 @@ public class PostServiceImpl implements PostService {
         this.mapper = mapper;
         this.webClient = webClientBuilder.baseUrl("https://jsonplaceholder.typicode.com").build();
         this.commentService = commentService;
+        this.processingHistoryService = processingHistoryService;
         this.jmsTemplate = jmsTemplate;
     }
-
-    /*@Override
-    public List<PostDto> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
-        return posts.stream().map(post -> mapToDTO(post)).collect(Collectors.toList());
-    }*/
 
     @Override
     public List<PostDto> getAllPosts() {
         List<Post> posts = postRepository.findAll();
-
-        return posts.stream().map(post -> {
-            Set<CommentDto> commentDtos = commentRepository.findByPostId(post.getId()).stream()
-                    .map(comment -> commentService.mapToDTO(comment))
-                    .collect(Collectors.toSet());
-
+        return posts.stream().sorted(Comparator.comparing(Post::getId)).map(post -> {
+            List<CommentDisplayDto> commentDtos = commentRepository.findByPostIdOrderByIdAsc(post.getId()).stream()
+                    .map(comment -> commentService.mapCommentToDisplayDTO(comment))
+                    .collect(Collectors.toList());
+            List<ProcessingHistoryDisplayDto> processDtos = processingHistoryRepository.findByPostIdOrderByDateAsc(post.getId()).stream()
+                    .map(processingHistory -> processingHistoryService.mapProcessHistoryToDisplayDTO(processingHistory))
+                    .collect(Collectors.toList());
             PostDto postDto = mapToDTO(post);
             postDto.setComments(commentDtos);
-
+            postDto.setHistory(processDtos);
             return postDto;
         }).collect(Collectors.toList());
     }
@@ -129,13 +127,11 @@ public class PostServiceImpl implements PostService {
         return Mono.empty();
     }
 
-    //Entity to DTO
     private PostDto mapToDTO(Post post){
         PostDto postDto = mapper.map(post, PostDto.class);
         return postDto;
     }
 
-    //DTO to Entity
     private Post mapToEntity(PostDto postDto){
         Post post = mapper.map(postDto, Post.class);
         return post;

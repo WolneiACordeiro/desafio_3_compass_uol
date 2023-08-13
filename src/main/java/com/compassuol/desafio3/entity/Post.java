@@ -1,14 +1,14 @@
 package com.compassuol.desafio3.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -25,6 +25,4 @@ public class Post {
     private String title;
     @Column(name = "body", nullable = true, columnDefinition = "TEXT")
     private String body;
-    //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private Set<Comment> comments = new HashSet<>();
 }

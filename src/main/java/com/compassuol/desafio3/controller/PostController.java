@@ -1,15 +1,9 @@
 package com.compassuol.desafio3.controller;
 
-import com.compassuol.desafio3.QueueConsumer;
-import com.compassuol.desafio3.entity.PostState;
 import com.compassuol.desafio3.payload.PostDto;
-import com.compassuol.desafio3.payload.ProcessingHistoryDto;
-import com.compassuol.desafio3.service.CommentService;
 import com.compassuol.desafio3.service.PostService;
-import com.compassuol.desafio3.service.ProcessingHistoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jms.annotation.EnableJms;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,21 +14,12 @@ import java.util.List;
 @EnableJms
 public class PostController {
     private PostService postService;
-    private CommentService commentService;
-    private final QueueConsumer queueConsumer;
     private final JmsTemplate jmsTemplate;
-    private final ProcessingHistoryService processingHistoryService;
 
     public PostController(PostService postService,
-                          CommentService commentService,
-                          QueueConsumer queueConsumer,
-                          JmsTemplate jmsTemplate,
-                          ProcessingHistoryService processingHistoryService) {
+                          JmsTemplate jmsTemplate) {
         this.postService = postService;
-        this.commentService = commentService;
-        this.queueConsumer = queueConsumer;
         this.jmsTemplate = jmsTemplate;
-        this.processingHistoryService = processingHistoryService;
     }
 
     @PostMapping("/{postId}")

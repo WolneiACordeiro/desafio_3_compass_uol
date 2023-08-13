@@ -2,6 +2,7 @@ package com.compassuol.desafio3.service.impl;
 
 import com.compassuol.desafio3.entity.Comment;
 import com.compassuol.desafio3.entity.Post;
+import com.compassuol.desafio3.payload.CommentDisplayDto;
 import com.compassuol.desafio3.payload.CommentDto;
 import com.compassuol.desafio3.payload.PostDto;
 import com.compassuol.desafio3.repository.CommentRepository;
@@ -89,7 +90,7 @@ public class CommentServiceImpl implements CommentService {
         return Mono.empty();
     }
 
-    public CommentDto mapToDTO(Comment comment){
+    private CommentDto mapToDTO(Comment comment){
         CommentDto commentDto = mapper.map(comment, CommentDto.class);
         return commentDto;
     }
@@ -98,4 +99,10 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = mapper.map(commentDto, Comment.class);
         return comment;
     }
+
+    public CommentDisplayDto mapCommentToDisplayDTO(Comment comment) {
+        CommentDisplayDto commentDisplayDto = mapper.map(comment, CommentDisplayDto.class);
+        return commentDisplayDto;
+    }
+
 }
