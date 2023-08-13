@@ -10,14 +10,19 @@ import com.compassuol.desafio3.repository.ProcessingHistoryRepository;
 import com.compassuol.desafio3.service.CommentService;
 import com.compassuol.desafio3.service.PostService;
 import com.compassuol.desafio3.service.ProcessingHistoryService;
+
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +35,9 @@ public class PostServiceImpl implements PostService {
     private CommentService commentService;
     private ProcessingHistoryService processingHistoryService;
     private final JmsTemplate jmsTemplate;
+
+    @Value("${external.api.base-url}")
+    private String externalApiBaseUrl;
     public PostServiceImpl(PostRepository postRepository,
                            CommentRepository commentRepository,
                            ProcessingHistoryRepository processingHistoryRepository,
@@ -101,7 +109,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Mono<Void> processBasedOnDataExistence(Long postId) {
-        return checkIfDataExists(postId)
+        Duration timeoutDuration = Duration.ofSeconds(5);
+        return checkIfDataExists(postId, timeoutDuration)
                 .flatMap(dataExists -> {
                     if (dataExists) {
                         return handlePositiveCase(postId);
@@ -111,10 +120,17 @@ public class PostServiceImpl implements PostService {
                 });
     }
 
-    public Mono<Boolean> checkIfDataExists(Long postId) {
+    public Mono<Boolean> checkIfDataExists(Long postId, Duration timeoutDuration) {
         return webClient.head()
                 .uri("/posts/{postId}", postId)
-                .exchangeToMono(response -> Mono.just(response.statusCode().is2xxSuccessful()));
+                .exchangeToMono(response -> Mono.just(response.statusCode().is2xxSuccessful()))
+                .timeout(timeoutDuration)
+                .onErrorResume(TimeoutException.class, error -> {
+                    return Mono.just(false);
+                })
+                .onErrorResume(WebClientRequestException.class, error -> {
+                    return Mono.just(false);
+                });
     }
 
     public Mono<Void> handlePositiveCase(Long postId) {
