@@ -2,6 +2,7 @@ package com.compassuol.desafio3.controller;
 
 import com.compassuol.desafio3.QueueConsumer;
 import com.compassuol.desafio3.entity.PostState;
+import com.compassuol.desafio3.payload.PostDto;
 import com.compassuol.desafio3.payload.ProcessingHistoryDto;
 import com.compassuol.desafio3.service.CommentService;
 import com.compassuol.desafio3.service.PostService;
@@ -10,10 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -38,73 +38,35 @@ public class PostController {
     }
 
     @PostMapping("/{postId}")
-    public ResponseEntity<String> createProcessingHistory(@PathVariable Long postId) {
-        postService.createEmptyPost(postId).subscribe();
-        return ResponseEntity.ok("Processing history creation request sent to the queue.");
+    public ResponseEntity<String> createNewPost(@PathVariable Long postId) {
+        jmsTemplate.convertAndSend("CREATED", postId);
+        return ResponseEntity.ok("Post CREATION request sent to the queue.");
     }
 
-    @JmsListener(destination = "CREATED")
-    public void consumeFromQueueCreated(Long postId) {
-        ProcessingHistoryDto processingHistoryDto = new ProcessingHistoryDto();
-        processingHistoryService.createProcessQueue(postId, PostState.CREATED, processingHistoryDto);
-        postService.processBasedOnDataExistence(postId).subscribe();
+    @PostMapping("/test")
+    public void testCreateProcessingHistoryEndpointBrutal() throws Exception {
+        int numRequests = 100;
+        for (int i = 1; i <= numRequests; i++) {
+            jmsTemplate.convertAndSend("CREATED", i);
+        }
     }
 
-    @JmsListener(destination = "POST_FIND")
-    public void consumeFromQueuePostFind(Long postId) {
-        ProcessingHistoryDto processingHistoryDto = new ProcessingHistoryDto();
-        processingHistoryService.createProcessQueue(postId, PostState.POST_FIND, processingHistoryDto);
-        /*postService.createPost(postId).subscribe(newPostDto -> {
-                    processingHistoryService.createProcessQueue(postId, PostState.ENABLED, processingHistoryDto);
-                }*/
-        postService.createPost(postId).subscribe();
-    }
-
-    @JmsListener(destination = "POST_OK")
-    public void consumeFromQueuePostOk(Long postId) {
-        ProcessingHistoryDto processingHistoryDto = new ProcessingHistoryDto();
-        processingHistoryService.createProcessQueue(postId, PostState.POST_OK, processingHistoryDto);
-        jmsTemplate.convertAndSend("COMMENTS_FIND", postId);
-    }
-
-    @JmsListener(destination = "COMMENTS_FIND")
-    public void consumeFromQueueCommentsFind(Long postId) {
-        ProcessingHistoryDto processingHistoryDto = new ProcessingHistoryDto();
-        processingHistoryService.createProcessQueue(postId, PostState.COMMENTS_FIND, processingHistoryDto);
-        commentService.processBasedOnDataExistence(postId).subscribe();
-    }
-
-    @JmsListener(destination = "COMMENTS_OK")
-    public void consumeFromQueueCommentsOk(Long postId) {
-        ProcessingHistoryDto processingHistoryDto = new ProcessingHistoryDto();
-        processingHistoryService.createProcessQueue(postId, PostState.COMMENTS_OK, processingHistoryDto);
-        commentService.createComment(postId).subscribe();
-    }
-
-    @JmsListener(destination = "ENABLED")
-    public void consumeFromQueueEnabled(Long postId) {
-        ProcessingHistoryDto processingHistoryDto = new ProcessingHistoryDto();
-        processingHistoryService.createProcessQueue(postId, PostState.ENABLED, processingHistoryDto);
-    }
-
-    @JmsListener(destination = "DISABLED")
-    public void consumeFromQueueDisabled(Long postId) {
-        ProcessingHistoryDto processingHistoryDto = new ProcessingHistoryDto();
-        processingHistoryService.createProcessQueue(postId, PostState.DISABLED, processingHistoryDto);
-    }
-
-    @JmsListener(destination = "FAILED")
-    public void consumeFromQueueFailed(Long postId) {
-        ProcessingHistoryDto processingHistoryDto = new ProcessingHistoryDto();
-        processingHistoryService.createProcessQueue(postId, PostState.FAILED, processingHistoryDto);
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<String> disablePost(@PathVariable Long postId) {
         jmsTemplate.convertAndSend("DISABLED", postId);
+        return ResponseEntity.ok("Post DISABLE request sent to the queue.");
     }
 
-    @JmsListener(destination = "UPDATING")
-    public void consumeFromQueueUpdating(Long postId) {
-        ProcessingHistoryDto processingHistoryDto = new ProcessingHistoryDto();
-        processingHistoryService.createProcessQueue(postId, PostState.UPDATING, processingHistoryDto);
-        jmsTemplate.convertAndSend("POST_FIND", postId);
+    @PutMapping("/{postId}")
+    public ResponseEntity<String> reprocessPost(@PathVariable Long postId) {
+        jmsTemplate.convertAndSend("UPDATING", postId);
+        return ResponseEntity.ok("Post UPDATE request sent to the queue.");
     }
+
+    @GetMapping
+    public List<PostDto> getAllPosts(){
+        return postService.getAllPosts();
+    }
+
 
 }

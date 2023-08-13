@@ -3,6 +3,7 @@ package com.compassuol.desafio3.service.impl;
 import com.compassuol.desafio3.entity.Comment;
 import com.compassuol.desafio3.entity.Post;
 import com.compassuol.desafio3.payload.CommentDto;
+import com.compassuol.desafio3.payload.PostDto;
 import com.compassuol.desafio3.repository.CommentRepository;
 import com.compassuol.desafio3.repository.PostRepository;
 import com.compassuol.desafio3.service.CommentService;
@@ -32,6 +33,12 @@ public class CommentServiceImpl implements CommentService {
         this.mapper = modelMapper;
         this.webClient = webClientBuilder.baseUrl("https://jsonplaceholder.typicode.com").build();
         this.jmsTemplate = jmsTemplate;
+    }
+
+    @Override
+    public List<CommentDto> getAllComments() {
+        List<Comment> comments = commentRepository.findAll();
+        return comments.stream().map(comment -> mapToDTO(comment)).collect(Collectors.toList());
     }
 
     @Override
@@ -82,7 +89,7 @@ public class CommentServiceImpl implements CommentService {
         return Mono.empty();
     }
 
-    private CommentDto mapToDTO(Comment comment){
+    public CommentDto mapToDTO(Comment comment){
         CommentDto commentDto = mapper.map(comment, CommentDto.class);
         return commentDto;
     }
