@@ -15,21 +15,21 @@ Este projeto tem como objetivo criar um aplicativo que busca assincronamente pos
 
 ### 2. Desabilitar Postagem
 
-- **Descrição:** Desabilita uma postagem que está no estado "HABILITADO".
+- **Descrição:** Desabilita uma postagem que está no estado "ENABLED".
 - **Método:** DELETE
 - **Caminho:** `/posts/{postId}`
 - **Requisitos:**
   - `postId` deve ser um número entre 1 e 100.
-  - `postId` deve estar no estado "HABILITADO".
+  - `postId` deve estar no estado "ENABLED".
 
 ### 3. Reprocessar Postagem
 
-- **Descrição:** Reprocessa uma postagem que está nos estados "HABILITADO" ou "DESABILITADO".
+- **Descrição:** Reprocessa uma postagem que está nos estados "ENABLED" ou "DISABLED".
 - **Método:** PUT
 - **Caminho:** `/posts/{postId}`
 - **Requisitos:**
   - `postId` deve ser um número entre 1 e 100.
-  - `postId` deve estar nos estados "HABILITADO" ou "DESABILITADO".
+  - `postId` deve estar nos estados "ENABLED" ou "DISABLED".
 
 ### 4. Consultar Postagens
 
