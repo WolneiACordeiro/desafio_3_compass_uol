@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 @EnableJms
 public class QueueConsumer {
     private final JmsTemplate jmsTemplate;
-    private PostService postService;
-    private CommentService commentService;
+    private final PostService postService;
+    private final CommentService commentService;
     private final ProcessingHistoryService processingHistoryService;
 
     public QueueConsumer(JmsTemplate jmsTemplate,
