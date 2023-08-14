@@ -1,6 +1,10 @@
 package com.compassuol.desafio3.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,12 +15,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "tb_posts")
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NotNull
+    @Column(name = "id", nullable = false, unique = true)
     private Long id;
-    private Long userId;
+    @Column(name = "title", nullable = true)
     private String title;
-    @Column(length = 1000)
+    @Column(name = "body", nullable = true, columnDefinition = "TEXT")
     private String body;
 }
