@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProcessingHistoryServiceImpl implements ProcessingHistoryService {
-    private ProcessingHistoryRepository processingHistoryRepository;
-    private ModelMapper mapper;
+    private final ProcessingHistoryRepository processingHistoryRepository;
+    private final ModelMapper mapper;
     public  ProcessingHistoryServiceImpl(ProcessingHistoryRepository  processingHistoryRepository, PostRepository postRepository, ModelMapper mapper){
         this.processingHistoryRepository = processingHistoryRepository;
         this.mapper = mapper;

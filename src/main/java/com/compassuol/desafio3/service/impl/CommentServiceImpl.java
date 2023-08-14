@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
-    private CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
 
     private final WebClient webClient;
-    private ModelMapper mapper;
+    private final ModelMapper mapper;
 
     private final JmsTemplate jmsTemplate;
 

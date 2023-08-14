@@ -26,13 +26,13 @@ import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
-    private PostRepository postRepository;
-    private CommentRepository commentRepository;
-    private ProcessingHistoryRepository processingHistoryRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final ProcessingHistoryRepository processingHistoryRepository;
     private final WebClient webClient;
-    private ModelMapper mapper;
-    private CommentService commentService;
-    private ProcessingHistoryService processingHistoryService;
+    private final ModelMapper mapper;
+    private final CommentService commentService;
+    private final ProcessingHistoryService processingHistoryService;
     private final JmsTemplate jmsTemplate;
     @Value("${external.api.base-url}")
     private String externalApiBaseUrl;
