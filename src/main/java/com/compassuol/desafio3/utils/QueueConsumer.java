@@ -1,4 +1,4 @@
-package com.compassuol.desafio3;
+package com.compassuol.desafio3.utils;
 
 import com.compassuol.desafio3.entity.PostState;
 import com.compassuol.desafio3.payload.ProcessingHistoryDto;

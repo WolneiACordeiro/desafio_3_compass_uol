@@ -10,7 +10,6 @@ import com.compassuol.desafio3.repository.ProcessingHistoryRepository;
 import com.compassuol.desafio3.service.CommentService;
 import com.compassuol.desafio3.service.PostService;
 import com.compassuol.desafio3.service.ProcessingHistoryService;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
@@ -35,7 +34,6 @@ public class PostServiceImpl implements PostService {
     private CommentService commentService;
     private ProcessingHistoryService processingHistoryService;
     private final JmsTemplate jmsTemplate;
-
     @Value("${external.api.base-url}")
     private String externalApiBaseUrl;
     public PostServiceImpl(PostRepository postRepository,
@@ -51,7 +49,7 @@ public class PostServiceImpl implements PostService {
         this.commentRepository = commentRepository;
         this.processingHistoryRepository = processingHistoryRepository;
         this.mapper = mapper;
-        this.webClient = webClientBuilder.baseUrl("https://jsonplaceholder.typicode.com").build();
+        this.webClient = webClientBuilder.build();
         this.commentService = commentService;
         this.processingHistoryService = processingHistoryService;
         this.jmsTemplate = jmsTemplate;
@@ -72,6 +70,11 @@ public class PostServiceImpl implements PostService {
             postDto.setHistory(processDtos);
             return postDto;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isPostExists(Long id) {
+        return postRepository.existsById(id);
     }
 
    @Override

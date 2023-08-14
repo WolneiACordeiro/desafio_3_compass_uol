@@ -8,8 +8,11 @@ import com.compassuol.desafio3.repository.PostRepository;
 import com.compassuol.desafio3.repository.ProcessingHistoryRepository;
 import com.compassuol.desafio3.service.ProcessingHistoryService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +34,11 @@ public class ProcessingHistoryServiceImpl implements ProcessingHistoryService {
     }
 
     @Override
+    public ProcessingHistory findFirstByPostIdOrderByDateDesc(Long postId) {
+        return processingHistoryRepository.findFirstByPostIdOrderByDateDesc(postId);
+    }
+
+    @Override
     @Async
     public ProcessingHistoryDto createProcessQueue(Long postId, PostState status, ProcessingHistoryDto processingHistoryDto) {
             ProcessingHistory processingHistory = mapToEntity(processingHistoryDto);
@@ -39,6 +47,18 @@ public class ProcessingHistoryServiceImpl implements ProcessingHistoryService {
             processingHistory.setStatus(String.valueOf(status));
             ProcessingHistory newProcess = processingHistoryRepository.save(processingHistory);
             return mapToDTO(newProcess);
+    }
+
+    @Override
+    public ResponseEntity<String> getFirstStatus(@PathVariable Long postId) {
+        ProcessingHistory firstHistory = findFirstByPostIdOrderByDateDesc(postId);
+
+        if (firstHistory != null) {
+            String firstStatus = firstHistory.getStatus();
+            return ResponseEntity.ok(firstStatus);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     private ProcessingHistoryDto mapToDTO(ProcessingHistory processingHistory){

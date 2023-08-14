@@ -10,5 +10,5 @@ public interface PostService {
     Mono<Void> processBasedOnDataExistence(Long postId);
     Mono<PostDto> createPost(Long postId);
     List<PostDto> getAllPosts();
-
+    public boolean isPostExists(Long id);
 }

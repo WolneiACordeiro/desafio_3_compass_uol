@@ -17,9 +17,6 @@ public class ProcessingHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "post_id", nullable = false)
-    //private Post post;
     private Long postId;
     @JoinColumn(name = "date_process", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)

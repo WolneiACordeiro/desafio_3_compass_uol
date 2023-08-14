@@ -1,20 +1,20 @@
 package com.compassuol.desafio3.service.impl;
 
 import com.compassuol.desafio3.entity.Comment;
-import com.compassuol.desafio3.entity.Post;
 import com.compassuol.desafio3.payload.CommentDisplayDto;
 import com.compassuol.desafio3.payload.CommentDto;
-import com.compassuol.desafio3.payload.PostDto;
 import com.compassuol.desafio3.repository.CommentRepository;
-import com.compassuol.desafio3.repository.PostRepository;
 import com.compassuol.desafio3.service.CommentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +32,7 @@ public class CommentServiceImpl implements CommentService {
                               JmsTemplate jmsTemplate) {
         this.commentRepository = commentRepository;
         this.mapper = modelMapper;
-        this.webClient = webClientBuilder.baseUrl("https://jsonplaceholder.typicode.com").build();
+        this.webClient = webClientBuilder.build();
         this.jmsTemplate = jmsTemplate;
     }
 
@@ -64,7 +64,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Mono<Void> processBasedOnDataExistence(Long postId) {
-        return checkIfDataExists(postId)
+        Duration timeoutDuration = Duration.ofSeconds(5);
+        return checkIfDataExists(postId, timeoutDuration)
                 .flatMap(dataExists -> {
                     if (dataExists) {
                         return handlePositiveCase(postId);
@@ -74,10 +75,17 @@ public class CommentServiceImpl implements CommentService {
                 });
     }
 
-    public Mono<Boolean> checkIfDataExists(Long postId) {
+    public Mono<Boolean> checkIfDataExists(Long postId, Duration timeoutDuration) {
         return webClient.head()
                 .uri("/comments?postId={postId}", postId)
-                .exchangeToMono(response -> Mono.just(response.statusCode().is2xxSuccessful()));
+                .exchangeToMono(response -> Mono.just(response.statusCode().is2xxSuccessful()))
+                .timeout(timeoutDuration)
+                .onErrorResume(TimeoutException.class, error -> {
+                    return Mono.just(false);
+                })
+                .onErrorResume(WebClientRequestException.class, error -> {
+                    return Mono.just(false);
+                });
     }
 
     public Mono<Void> handlePositiveCase(Long postId) {
