@@ -48,15 +48,15 @@ public class PostController {
         }
 
         if (!postService.isPostExists(postId)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This post is not present in the database : " + postId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This post is not present in the database : " + postId);
         }
 
         String firstStatus = processingHistoryService.getFirstStatus(postId).getBody();
         if ("ENABLED".equals(firstStatus)) {
             jmsTemplate.convertAndSend("DISABLED", postId);
-            return ResponseEntity.ok("Post DISABLE request sent to the queue.");
+            return ResponseEntity.status(HttpStatus.OK).body("Post DISABLE request sent to the queue.");
         } else {
-            return ResponseEntity.badRequest().body("Cannot disable the post because it is not in ENABLED state.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot disable the post because it is not in ENABLED state.");
         }
     }
 
@@ -67,15 +67,15 @@ public class PostController {
         }
 
         if (!postService.isPostExists(postId)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This post is not present in the database : " + postId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This post is not present in the database : " + postId);
         }
 
         String firstStatus = processingHistoryService.getFirstStatus(postId).getBody();
         if ("ENABLED".equals(firstStatus) || "DISABLED".equals(firstStatus)) {
             jmsTemplate.convertAndSend("UPDATING", postId);
-            return ResponseEntity.ok("Post UPDATE request sent to the queue.");
+            return ResponseEntity.status(HttpStatus.OK).body("Post UPDATE request sent to the queue.");
         } else {
-            return ResponseEntity.badRequest().body("Cannot disable the post because it is not in ENABLED state.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot disable the post because it is not in ENABLED state.");
         }
     }
 
