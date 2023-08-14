@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/posts")
 @EnableJms
 public class PostController {
-    private PostService postService;
+    private final PostService postService;
     private final ProcessingHistoryService processingHistoryService;
     private final JmsTemplate jmsTemplate;
 
