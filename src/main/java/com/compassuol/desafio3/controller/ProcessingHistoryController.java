@@ -1,13 +1,10 @@
 package com.compassuol.desafio3.controller;
 
-import com.compassuol.desafio3.entity.PostState;
-import com.compassuol.desafio3.payload.CommentDto;
 import com.compassuol.desafio3.payload.ProcessingHistoryDto;
 import com.compassuol.desafio3.service.ProcessingHistoryService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 

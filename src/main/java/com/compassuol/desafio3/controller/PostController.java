@@ -41,14 +41,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Post CREATION request sent to the queue.");
     }
 
-    @PostMapping("/test")
-    public void testCreateProcessingHistoryEndpointBrutal() throws Exception {
-        int numRequests = 100;
-        for (int i = 1; i <= numRequests; i++) {
-            jmsTemplate.convertAndSend("CREATED", i);
-        }
-    }
-
     @DeleteMapping("/{postId}")
     public ResponseEntity<String> disablePost(@PathVariable Long postId) {
         if (postId < 1 || postId > 100) {
